@@ -1,0 +1,1 @@
+# tinyimg-webpack-plugin
