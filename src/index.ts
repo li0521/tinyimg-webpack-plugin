@@ -1,21 +1,34 @@
-const Https = require('https')
-const SchemaUtils = require('schema-utils')
-const Url = require('url')
-const Chalk = require('chalk')
-const Figures = require('figures')
-const Fs = require('fs')
-const Ora = require('ora')
-const asyncPool = require('tiny-async-pool')
+import Https from 'https'
+import SchemaUtils from 'schema-utils'
+import Url from 'url'
+import Chalk from 'chalk'
+import Figures from 'figures'
+import Fs from 'fs'
+import Ora from 'ora'
+import asyncPool from 'tiny-async-pool'
+import { Compiler } from 'webpack'
+import { Schema } from 'schema-utils/declarations/validate'
 
-const { PLUGIN_NAME, IMG_REGEXP } = require('../util/getting')
-const { RandomHeader, computeSize } = require('../util/setting')
-const { request } = require('../util/https')
-const Schema = require('./schema')
+import { PLUGIN_NAME, IMG_REGEXP } from '../util/getting'
+import { RandomHeader, computeSize } from '../util/setting'
+import request from '../util/https'
+import schema from './schema.json'
+import { options } from './typing'
 
 const myRequest = request(Https.request)
 
-module.exports = class TinyimgWebpackPlugin {
-  constructor(opts) {
+export default class TinyimgWebpackPlugin {
+  private opts: options
+  private total = {
+    oldSize: 0,
+    newSize: 0,
+  }
+  private startTime: number
+  private imgNum: number
+  private completeNum: number
+  private spinner: Ora.Ora
+
+  constructor(opts: options) {
     this.opts = opts
     this.total = {
       oldSize: 0,
@@ -27,10 +40,10 @@ module.exports = class TinyimgWebpackPlugin {
     this.spinner = Ora(`图片压缩完成 (${this.completeNum}/${this.imgNum})`).start()
   }
 
-  apply(compiler) {
+  apply(compiler: Compiler) {
     const { enabled, logged, concurrency = 40 } = this.opts
 
-    SchemaUtils(Schema, this.opts, { name: PLUGIN_NAME })
+    SchemaUtils(schema as Schema, this.opts, { name: PLUGIN_NAME })
     enabled &&
       compiler.hooks.emit.tap(PLUGIN_NAME, (compilation) => {
         const imgs = Object.keys(compilation.assets).filter((v) => IMG_REGEXP.test(v))
@@ -41,7 +54,7 @@ module.exports = class TinyimgWebpackPlugin {
 
         this.imgNum = imgs.length
 
-        const promise = (path) => {
+        const promise = (path: string) => {
           return this.compressImg(compilation.assets[path], path, 0)
         }
 
@@ -69,7 +82,7 @@ module.exports = class TinyimgWebpackPlugin {
       })
   }
 
-  async compressImg(asset, path, times) {
+  async compressImg(asset: any, path: string, times: number): Promise<string> {
     try {
       const file = asset.source()
       const obj = await this.uploadImg(file)
@@ -102,9 +115,9 @@ module.exports = class TinyimgWebpackPlugin {
     }
   }
 
-  uploadImg(file) {
+  uploadImg(file: any): Promise<any> {
     const opts = RandomHeader()
-    opts.timeout = this.opts.timeout * 1000
+    opts.timeout = (this.opts.timeout || 1) * 1000
 
     return new Promise((resolve, reject) => {
       try {
@@ -117,7 +130,7 @@ module.exports = class TinyimgWebpackPlugin {
 
         req.write(file, 'binary')
         req.on('error', (e) => reject(e))
-        req.on('timeout', (e) => reject(e))
+        req.on('timeout', (e: string) => reject(e))
         req.end()
       } catch (e) {
         reject(e)
@@ -125,7 +138,7 @@ module.exports = class TinyimgWebpackPlugin {
     })
   }
 
-  downloadImg(url) {
+  downloadImg(url: string): Promise<any> {
     const opts = new Url.URL(url)
 
     return new Promise((resolve, reject) => {

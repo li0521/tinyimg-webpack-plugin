@@ -1,19 +1,19 @@
-const Path = require("path");
-const CleanPlugin = require("clean-webpack-plugin").CleanWebpackPlugin;
-const HtmlPlugin = require("html-webpack-plugin");
+const Path = require('path')
+const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin
+const HtmlPlugin = require('html-webpack-plugin')
 
-const TinyimgPlugin = require("../src");
+const TinyimgPlugin = require('../dist')
 
 const PATH = {
-  entryHtml: Path.join(__dirname, "src/index.html"),
-  entryJs: Path.join(__dirname, "src/index.js"),
-  output: Path.join(__dirname, "dist"),
-};
+  entryHtml: Path.join(__dirname, 'src/index.html'),
+  entryJs: Path.join(__dirname, 'src/index.js'),
+  output: Path.join(__dirname, 'dist'),
+}
 
 module.exports = {
   devtool: false,
   entry: PATH.entryJs,
-  mode: "production",
+  mode: 'production',
   module: {
     rules: [
       {
@@ -21,7 +21,7 @@ module.exports = {
         test: /\.(htm|html)$/,
         use: [
           {
-            loader: "html-withimg-loader",
+            loader: 'html-withimg-loader',
           },
         ],
       },
@@ -30,11 +30,11 @@ module.exports = {
         test: /\.(jpe?g|png)$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
               esModule: false,
-              name: "[name].[ext]",
-              outputPath: "img",
+              name: '[name].[ext]',
+              outputPath: 'img',
             },
           },
         ],
@@ -42,14 +42,14 @@ module.exports = {
     ],
   },
   output: {
-    filename: "js/[name].bundle.js",
+    filename: 'js/[name].bundle.js',
     path: PATH.output,
-    publicPath: "",
+    publicPath: '',
   },
   plugins: [
     new CleanPlugin(),
     new HtmlPlugin({
-      filename: "index.html",
+      filename: 'index.html',
       minify: { collapseWhitespace: true, removeComments: true },
       template: PATH.entryHtml,
     }),
@@ -60,4 +60,4 @@ module.exports = {
       timeout: 10,
     }),
   ],
-};
+}
