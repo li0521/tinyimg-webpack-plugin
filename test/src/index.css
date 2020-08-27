@@ -1,0 +1,7 @@
+.bg {
+  width: 1000px;
+  height: 500px;
+
+  background-image: url('./images/a0.png');
+  background-size: 100%;
+}
