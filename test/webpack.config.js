@@ -18,6 +18,11 @@ module.exports = {
     rules: [
       {
         exclude: /node_modules/,
+        test: /\.css$/,
+        use: [{ loader: 'css-loader' }],
+      },
+      {
+        exclude: /node_modules/,
         test: /\.(htm|html)$/,
         use: [
           {

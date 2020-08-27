@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/tiny-async-pool": "^1.0.0",
     "chalk": "^4.1.0",
+    "css-loader": "^4.2.2",
     "figures": "^3.2.0",
     "ora": "^4.0.5",
     "schema-utils": "^2.7.0"

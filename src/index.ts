@@ -11,11 +11,11 @@ import { Schema } from 'schema-utils/declarations/validate'
 
 import { PLUGIN_NAME, IMG_REGEXP } from '../util/getting'
 import { RandomHeader, computeSize } from '../util/setting'
-import request from '../util/https'
 import schema from './schema.json'
 import { options } from './typing'
+import request from '../util/https'
 
-const myRequest = request(Https.request)
+const _request = request(Https.request)
 
 export default class TinyimgWebpackPlugin {
   private opts: options
@@ -49,6 +49,7 @@ export default class TinyimgWebpackPlugin {
         const imgs = Object.keys(compilation.assets).filter((v) => IMG_REGEXP.test(v))
 
         if (!imgs.length) {
+          this.spinner.stop()
           return Promise.resolve()
         }
 
@@ -103,13 +104,13 @@ export default class TinyimgWebpackPlugin {
 
       return Promise.resolve(msg)
     } catch (err) {
-      console.log(
-        `\n压缩图片[${Chalk.yellowBright(path)}] 失败: ${Chalk.redBright(err)} 正在重试...`
-      )
       if (times > 2) {
         const msg = `${Figures.cross} 压缩图片[${Chalk.yellowBright(path)}]失败`
         return Promise.resolve(msg)
       } else {
+        console.log(
+          `\n压缩图片[${Chalk.yellowBright(path)}] 失败: ${Chalk.redBright(err)} 正在重试...`
+        )
         return this.compressImg(asset, path, times + 1)
       }
     }
@@ -117,11 +118,11 @@ export default class TinyimgWebpackPlugin {
 
   uploadImg(file: any): Promise<any> {
     const opts = RandomHeader()
-    opts.timeout = (this.opts.timeout || 1) * 1000
+    opts.timeout = (this.opts.timeout || 10) * 1000
 
     return new Promise((resolve, reject) => {
       try {
-        const req = myRequest(opts, (res) =>
+        const req = _request(opts, (res) =>
           res.on('data', (data) => {
             const obj = JSON.parse(data.toString())
             obj.error ? reject(obj.message) : resolve(obj)
@@ -130,7 +131,7 @@ export default class TinyimgWebpackPlugin {
 
         req.write(file, 'binary')
         req.on('error', (e) => reject(e))
-        req.on('timeout', (e: string) => reject(e))
+        req.on('timeout', (e: Error) => reject(e))
         req.end()
       } catch (e) {
         reject(e)
@@ -140,9 +141,10 @@ export default class TinyimgWebpackPlugin {
 
   downloadImg(url: string): Promise<any> {
     const opts = new Url.URL(url)
+    const timeout = (this.opts.timeout || 10) * 1000
 
     return new Promise((resolve, reject) => {
-      const req = myRequest(opts, (res) => {
+      const req = _request(Object.assign(opts, { timeout }), (res) => {
         let file = ''
 
         res.setEncoding('binary')
@@ -151,6 +153,7 @@ export default class TinyimgWebpackPlugin {
       })
 
       req.on('error', (e) => reject(e))
+      req.on('timeout', (e: Error) => reject(e))
       req.end()
     })
   }
