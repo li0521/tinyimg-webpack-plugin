@@ -20,8 +20,6 @@ if (files.length === 0) {
   process.exit(0)
 }
 
-console.log('hhhh')
-
 // Stream 转 Buffer
 const streamToBuffer = (stream) =>
   new Promise((resolve, reject) => {
@@ -52,8 +50,10 @@ const compress = async (stream) => {
   return bufferToStream(newBuffer)
 }
 
+const tasks = []
+
 files.forEach((path) => {
-  tasks.push(compress(path))
+  tasks.push(sharp(path).toFile('2.jpg'))
 })
 
 Promise.all(tasks).then(() => {
