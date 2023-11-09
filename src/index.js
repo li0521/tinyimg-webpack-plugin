@@ -20,7 +20,7 @@ if (files.length === 0) {
   process.exit(0)
 }
 
-console.log(files)
+console.log('hhhh')
 
 // Stream 转 Buffer
 const streamToBuffer = (stream) =>
