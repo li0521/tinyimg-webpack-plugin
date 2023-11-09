@@ -4,7 +4,8 @@
   "description": "",
   "main": "/src/index.js",
   "scripts": {
-    "test": "tinyimg-hook"
+    "prepare": "husky install",
+    "lint-staged": "lint-staged"
   },
   "bin": {
     "tinyimg-hook": "/src/index.js"

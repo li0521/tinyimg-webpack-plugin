@@ -16,6 +16,7 @@ const args = process.argv.slice(2)
 // 过滤图片
 const files = args.filter((file) => /\.(png|jpg|jpeg)$/.test(file))
 if (files.length === 0) {
+  console.log('test')
   process.exit(0)
 }
 
