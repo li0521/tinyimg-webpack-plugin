@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { spawnSync, execSync } = require('child_process')
+const sharp = require('sharp')
 
 // 跳过合并
 const status = execSync('git status', {
@@ -16,13 +17,43 @@ const args = process.argv.slice(2)
 // 过滤图片
 const files = args.filter((file) => /\.(png|jpg|jpeg)$/.test(file))
 if (files.length === 0) {
-  console.log('test')
   process.exit(0)
 }
 
-const tasks = []
+console.log(files)
+
+// Stream 转 Buffer
+const streamToBuffer = (stream) =>
+  new Promise((resolve, reject) => {
+    const buffers = []
+    stream.on('error', reject)
+    stream.on('data', (data) => buffers.push(data))
+    stream.on('end', () => resolve(Buffer.concat(buffers)))
+  })
+
+// Buffer 转 Stream
+const bufferToStream = (buffer) => {
+  const stream = new Duplex()
+  stream.push(buffer)
+  stream.push(null)
+  return stream
+}
+
+const compress = async (stream) => {
+  const imagesBuffer = await streamToBuffer(stream)
+  const metadata = await sharp(imagesBuffer).metadata()
+
+  let formatOptions = { quality: 75 }
+
+  // 压缩: 调用 sharp
+  const newBuffer = await sharp(imagesBuffer)?.[metadata.format](formatOptions).toBuffer()
+
+  // 返回文件流
+  return bufferToStream(newBuffer)
+}
+
 files.forEach((path) => {
-  tasks.push(tinify.fromFile(path).toFile(path))
+  tasks.push(compress(path))
 })
 
 Promise.all(tasks).then(() => {

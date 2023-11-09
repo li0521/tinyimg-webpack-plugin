@@ -4,7 +4,6 @@
   "description": "",
   "main": "/src/index.js",
   "scripts": {
-    "prepare": "husky install",
     "lint-staged": "lint-staged"
   },
   "bin": {
