@@ -57,6 +57,7 @@ files.forEach(async (path) => {
 })
 
 Promise.all(tasks).then(() => {
+  console.log('压缩完成')
   const { status } = spawnSync('git', ['add', ...files])
   process.exit(status)
 })
