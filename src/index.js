@@ -52,8 +52,8 @@ const compress = async (stream) => {
 
 const tasks = []
 
-files.forEach((path) => {
-  tasks.push(sharp(path).toFile('2.jpg'))
+files.forEach(async (path) => {
+  tasks.push(await sharp(path).toFile('2.jpg'))
 })
 
 Promise.all(tasks).then(() => {
