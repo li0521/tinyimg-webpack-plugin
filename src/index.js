@@ -40,9 +40,10 @@ if (files.length === 0) {
 
 const compress = (path) => {
   return new Promise(async (resolve, reject) => {
-    const newBuffer = await sharp(path).toBuffer()
+    const oldBuffer = fs.readFileSync(path)
+    const newBuffer = await sharp(oldBuffer).toBuffer()
 
-    fs.writeFileSync(path, newBuffer)
+    fs.writeFileSync('test.jpg', newBuffer)
 
     resolve()
   })
