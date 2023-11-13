@@ -43,7 +43,7 @@ const compress = (path) => {
     const oldBuffer = fs.readFileSync(path)
     const newBuffer = await sharp(oldBuffer).toBuffer()
 
-    fs.writeFileSync('test.jpg', newBuffer)
+    fs.writeFileSync(path, newBuffer)
 
     resolve()
   })
