@@ -21,23 +21,6 @@ if (files.length === 0) {
   process.exit(0)
 }
 
-//  Stream 转 Buffer
-// const streamToBuffer = (stream) =>
-//   new Promise((resolve, reject) => {
-//     const buffers = []
-//     stream.on('error', reject)
-//     stream.on('data', (data) => buffers.push(data))
-//     stream.on('end', () => resolve(Buffer.concat(buffers)))
-//   })
-
-// // Buffer 转 Stream
-// const bufferToStream = (buffer) => {
-//   const stream = new Duplex()
-//   stream.push(buffer)
-//   stream.push(null)
-//   return stream
-// }
-
 const compress = (path) => {
   return new Promise(async (resolve, reject) => {
     const oldBuffer = fs.readFileSync(path)
@@ -53,10 +36,4 @@ const tasks = []
 
 files.forEach((path) => {
   tasks.push(compress(path))
-})
-
-Promise.all(tasks).then(() => {
-  console.log('压缩完成')
-  const { status } = spawnSync('git', ['add', ...files])
-  process.exit(status)
 })
